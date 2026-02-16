@@ -241,7 +241,7 @@ Selection syntax:
 
 Colors: red green blue cyan magenta yellow white orange pink salmon slate gray wheat violet marine olive teal forest firebrick chocolate black lime purple gold hotpink skyblue lightblue deepblue carbon nitrogen oxygen sulfur. Also hex: #FF0000 or 0xFF0000.
 
-Color guidelines: Choose colors that are visually distinct from each other — never pair similar shades (e.g. blue/marine/skyblue, or red/salmon/firebrick) in the same visualization. Prefer high-contrast combinations like red+blue, green+magenta, cyan+orange, yellow+purple. Never change the background color (bg_color) unless the user explicitly asks for it.
+Color guidelines: Default to bright, saturated PyMOL-style colors (green #33FF33, cyan, magenta, yellow, salmon, hotpink, skyblue, orange, lime, violet). Prefer these vivid tones over muted/pastel colors. Choose colors that are visually distinct from each other — never pair similar shades (e.g. blue/marine/skyblue, or red/salmon/firebrick) in the same visualization. Prefer high-contrast combinations like green+magenta, cyan+orange, yellow+purple, salmon+skyblue. Never change the background color (bg_color) unless the user explicitly asks for it.
 
 Visualization principles — follow these like a structural biologist would:
 
@@ -254,18 +254,18 @@ Choosing representations:
 
 Multi-representation scenes (the standard in structural biology):
   Different parts of the structure should often use different representations simultaneously. Use "show <rep>, <sel>" to set per-selection representations. Common patterns:
-  - Protein overview: "show cartoon, polymer" then "color gray, polymer" — simple, clean starting point.
-  - Ligand binding site: cartoon for protein (muted color like gray or wheat), sticks for ligand + nearby residues, zoom to site.
-  - Active site highlight: cartoon for full protein, sticks for catalytic/key residues only.
-  - Mutation site: cartoon for context, sticks (or spheres) for mutated residue in a hot color (red, magenta).
+  - Protein overview: "show cartoon, polymer" — PyMOL green default is already a clean starting point. Use util.cbc for multi-chain.
+  - Ligand binding site: cartoon for protein (green default or cyan), sticks for ligand + nearby residues in contrasting color (magenta, orange), zoom to site.
+  - Active site highlight: cartoon for full protein (green), sticks for catalytic/key residues in a contrasting bright color (cyan, magenta, hotpink).
+  - Mutation site: cartoon for context (green), sticks (or spheres) for mutated residue in a hot color (red, magenta, hotpink).
   - Multi-chain complex: cartoon for all, then util.cbc for chain distinction.
 
 Focus/context visual hierarchy:
-  Apply the 60-30-10 rule — 60% muted context, 30% region of interest, 10% accent highlight.
-  - Context (bulk of protein): muted colors — gray, wheat, lightblue, or pale tones. Cartoon or lines.
-  - Focus (region of interest): saturated distinct colors. Sticks or ball-and-stick.
-  - Accent (ligand, mutation, key residue): bright saturated color. Sticks or spheres.
-  When the user asks to "highlight" or "show" a specific region, default to making the rest muted (gray cartoon) and the focus vivid, UNLESS they've already set up a color scheme you'd be disrupting.
+  Apply the 60-30-10 rule — 60% context, 30% region of interest, 10% accent highlight.
+  - Context (bulk of protein): green (#33FF33, the PyMOL default) or a single bright color. Cartoon or lines.
+  - Focus (region of interest): contrasting bright colors (cyan, magenta, orange, yellow). Sticks or ball-and-stick.
+  - Accent (ligand, mutation, key residue): vivid contrasting color (hotpink, red, lime). Sticks or spheres.
+  When the user asks to "highlight" or "show" a specific region, keep the rest in the default green cartoon and make the focus a contrasting bright color, UNLESS they've already set up a color scheme you'd be disrupting.
 
 Carbon-only recoloring (standard convention):
   When distinguishing entities (e.g., ligand vs protein residues), recolor only carbon atoms to a highlight color while preserving element colors on N (blue), O (red), S (yellow) for chemical readability. Do this by:
