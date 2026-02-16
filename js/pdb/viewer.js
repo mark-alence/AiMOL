@@ -401,12 +401,13 @@ export class PDBViewer {
       const repTypes = new Set(this.atomRepType);
       for (const rt of repTypes) this._ensureRep(rt);
       this._cleanupUnusedReps();
-      // Apply restored colors to all reps
-      for (const rep of this.activeReps.values()) {
-        rep.applyColors(this.atomColors);
-      }
       this._syncRepVisibility();
       this._updateCurrentRepType();
+    }
+
+    // Always apply colors (cartoon initializes vertex colors to white)
+    for (const rep of this.activeReps.values()) {
+      rep.applyColors(this.atomColors);
     }
   }
 
