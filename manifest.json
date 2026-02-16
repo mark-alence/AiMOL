@@ -1,6 +1,6 @@
 {
-  "name": "PDB Viewer",
-  "short_name": "PDBViewer",
+  "name": "AiMOL",
+  "short_name": "AiMOL",
   "description": "Interactive 3D molecular structure viewer",
   "start_url": "/",
   "display": "standalone",

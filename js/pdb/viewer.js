@@ -469,10 +469,11 @@ export class PDBViewer {
     const n = this.model.atomCount;
     const { atoms } = this.model;
 
-    // Colors: always rebuild from element defaults
+    // Colors: default to PyMOL green (uniform, like PyMOL's cartoon default)
+    const defaultColor = 0x33FF33;
     this.atomColors = new Array(n);
     for (let i = 0; i < n; i++) {
-      this.atomColors[i] = new THREE.Color(ELEMENT_COLORS[atoms[i].element] || DEFAULT_COLOR);
+      this.atomColors[i] = new THREE.Color(defaultColor);
     }
 
     // Visibility: all visible
@@ -698,10 +699,11 @@ export class PDBViewer {
     const n = this.model.atomCount;
     const { atoms } = this.model;
 
-    // Store current element colors
+    // Default to PyMOL green (uniform, like PyMOL's cartoon default)
+    const defaultColor = 0x33FF33;
     this.atomColors = new Array(n);
     for (let i = 0; i < n; i++) {
-      this.atomColors[i] = new THREE.Color(ELEMENT_COLORS[atoms[i].element] || DEFAULT_COLOR);
+      this.atomColors[i] = new THREE.Color(defaultColor);
     }
 
     // Visibility: 1 = visible, 0 = hidden
@@ -927,24 +929,22 @@ export class PDBViewer {
   }
 
   /**
-   * Reset specific atoms to their element colors.
+   * Reset specific atoms to default PyMOL green.
    * @param {Set<number>|number[]} indices
    */
   resetColorsForAtoms(indices) {
-    const { atoms } = this.model;
     for (const i of indices) {
-      this.atomColors[i].setHex(ELEMENT_COLORS[atoms[i].element] || DEFAULT_COLOR);
+      this.atomColors[i].setHex(0x33FF33);
     }
     for (const rep of this.activeReps.values()) rep.applyColors(this.atomColors);
   }
 
   /**
-   * Reset all atom colors to element defaults.
+   * Reset all atom colors to default PyMOL green.
    */
   resetColors() {
-    const { atoms } = this.model;
-    for (let i = 0; i < atoms.length; i++) {
-      this.atomColors[i].setHex(ELEMENT_COLORS[atoms[i].element] || DEFAULT_COLOR);
+    for (let i = 0; i < this.model.atoms.length; i++) {
+      this.atomColors[i].setHex(0x33FF33);
     }
     // Reapply structure colors for non-first structures
     for (const name of this.structureManager.getStructureNames()) {

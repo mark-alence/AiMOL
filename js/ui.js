@@ -96,7 +96,7 @@ function TitleScreen({ onOpenViewer }) {
   return React.createElement('div', {
     className: 'title-screen' + (fade ? ' fade-out' : ''),
   },
-    React.createElement('h1', null, 'PDB Viewer'),
+    React.createElement('h1', null, 'AiMOL'),
     React.createElement('p', { className: 'subtitle' }, 'Interactive 3D molecular structure viewer'),
 
     React.createElement('div', { className: 'pdb-open-section' },
@@ -165,7 +165,7 @@ function ViewerInfoBar({ info, name, onBack, quality, onQualityChange }) {
       onClick: onBack,
       title: 'Back to title',
     }, '\u2190'),
-    React.createElement('span', { className: 'viewer-name' }, name || 'PDB Viewer'),
+    React.createElement('span', { className: 'viewer-name' }, name || 'AiMOL'),
     React.createElement('span', { className: 'viewer-stats' },
       `${info.atomCount.toLocaleString()} atoms \u00B7 ${info.residueCount} residues \u00B7 ${info.chainCount} chain${info.chainCount !== 1 ? 's' : ''}`
     ),
