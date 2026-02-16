@@ -7,11 +7,13 @@
 import * as THREE from 'three';
 import { ELEMENT_COLORS, DEFAULT_COLOR, VDW_RADII, DEFAULT_VDW } from './constants.js';
 
-// Shared geometry instances
+// Shared geometry instances (marked _shared so dispose() skips them)
 const atomGeometry = new THREE.IcosahedronGeometry(1, 2);
+atomGeometry._shared = true;
 const bondGeometry = new THREE.CylinderGeometry(1, 1, 1, 6);
 // Shift cylinder so bottom is at origin, extends along +Y
 bondGeometry.translate(0, 0.5, 0);
+bondGeometry._shared = true;
 
 // Temp objects for matrix calculations
 const _mat4 = new THREE.Matrix4();

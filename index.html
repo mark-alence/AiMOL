@@ -591,13 +591,39 @@
     background: rgba(88, 166, 255, 0.12);
   }
 
-  /* ========== Load Structure Button ========== */
-  .load-structure-wrap {
+  /* ========== Bottom-Left Controls ========== */
+  .viewer-bottom-left {
     position: absolute;
     bottom: 16px;
     left: 12px;
+    display: flex;
+    gap: 6px;
+    align-items: flex-end;
     pointer-events: auto;
     z-index: 20;
+  }
+  .orient-btn {
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    color: #888;
+    background: rgba(10, 14, 20, 0.85);
+    border: 1px solid #2d3b4f;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .orient-btn:hover {
+    color: #58a6ff;
+    border-color: #58a6ff;
+  }
+
+  /* ========== Load Structure Button ========== */
+  .load-structure-wrap {
+    position: relative;
+    pointer-events: auto;
   }
   .load-structure-btn {
     font-family: 'Courier New', monospace;
@@ -1078,8 +1104,8 @@
 
     .api-key-popover { width: 240px; }
 
-    /* Load structure mobile */
-    .load-structure-wrap {
+    /* Bottom-left controls mobile */
+    .viewer-bottom-left {
       bottom: calc(52px + env(safe-area-inset-bottom, 0px));
       left: 8px;
     }

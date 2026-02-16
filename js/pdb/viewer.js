@@ -481,8 +481,8 @@ export class PDBViewer {
     // Per-atom scale multipliers (default 1.0)
     this.atomScale = new Float32Array(n).fill(1);
 
-    // Per-atom representation type
-    this.atomRepType = new Array(n).fill(this.currentRepType);
+    // Per-atom representation type (fallback to ball-and-stick when in mixed mode)
+    this.atomRepType = new Array(n).fill(this.currentRepType || REP_TYPES.BALL_AND_STICK);
 
     // Base scales from active rep
     const firstRep = this.activeReps.values().next().value || null;
@@ -517,14 +517,15 @@ export class PDBViewer {
       this.atomColors[i].copy(color);
     }
 
-    if (this.activeRep) this.activeRep.applyColors(this.atomColors);
+    for (const rep of this.activeReps.values()) rep.applyColors(this.atomColors);
   }
 
   /**
    * Build representation meshes for the current model.
    */
   _buildMeshes() {
-    const RepClass = REP_CLASSES[this.currentRepType];
+    const repType = this.currentRepType || REP_TYPES.BALL_AND_STICK;
+    const RepClass = REP_CLASSES[repType];
     if (!RepClass) return;
 
     const rep = new RepClass(
@@ -533,7 +534,7 @@ export class PDBViewer {
       this.viewerGroup
     );
     rep.build();
-    this.activeReps.set(this.currentRepType, rep);
+    this.activeReps.set(repType, rep);
 
     // Update legacy refs
     this.atomMesh = rep.getAtomMesh();
@@ -738,12 +739,14 @@ export class PDBViewer {
    * @param {THREE.Vector3|null} newPosition - null keeps same offset from target
    * @param {number} duration - ms
    */
-  _animateCameraTo(newTarget, newPosition = null, duration = 350) {
+  _animateCameraTo(newTarget, newPosition = null, duration = 350, newUp = null) {
     this._cameraAnim = {
       startTarget: this.controls.target.clone(),
       endTarget: newTarget.clone(),
       startPos: this.camera.position.clone(),
       endPos: newPosition ? newPosition.clone() : null,
+      startUp: newUp ? this.camera.up.clone() : null,
+      endUp: newUp ? newUp.clone() : null,
       startTime: performance.now(),
       duration,
     };
@@ -768,8 +771,117 @@ export class PDBViewer {
       this.camera.position.copy(this.controls.target).add(offset);
     }
 
+    if (anim.startUp && anim.endUp) {
+      this.camera.up.lerpVectors(anim.startUp, anim.endUp, ease).normalize();
+    }
+
     this.controls.update();
     if (t >= 1) this._cameraAnim = null;
+  }
+
+  /**
+   * PyMOL-style orient: PCA-based camera alignment.
+   * Positions camera along the least-spread principal axis,
+   * with the most-spread axis horizontal on screen.
+   */
+  orient() {
+    if (!this.model) return;
+    const { positions, atomCount } = this.model;
+    if (atomCount === 0) return;
+
+    // Collect visible atom positions (or all if none hidden)
+    const coords = [];
+    for (let i = 0; i < atomCount; i++) {
+      if (this.atomVisible && !this.atomVisible[i]) continue;
+      coords.push(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
+    }
+    const n = coords.length / 3;
+    if (n === 0) return;
+
+    // Centroid
+    let cx = 0, cy = 0, cz = 0;
+    for (let i = 0; i < n; i++) {
+      cx += coords[i * 3]; cy += coords[i * 3 + 1]; cz += coords[i * 3 + 2];
+    }
+    cx /= n; cy /= n; cz /= n;
+
+    // Covariance matrix (symmetric 3x3)
+    let cxx = 0, cxy = 0, cxz = 0, cyy = 0, cyz = 0, czz = 0;
+    for (let i = 0; i < n; i++) {
+      const dx = coords[i * 3] - cx, dy = coords[i * 3 + 1] - cy, dz = coords[i * 3 + 2] - cz;
+      cxx += dx * dx; cxy += dx * dy; cxz += dx * dz;
+      cyy += dy * dy; cyz += dy * dz; czz += dz * dz;
+    }
+    cxx /= n; cxy /= n; cxz /= n; cyy /= n; cyz /= n; czz /= n;
+
+    // Eigendecomposition via Jacobi iteration for 3x3 symmetric matrix
+    const A = [cxx, cxy, cxz, cxy, cyy, cyz, cxz, cyz, czz];
+    const V = [1,0,0, 0,1,0, 0,0,1]; // eigenvectors (columns)
+
+    const rotate = (a, v, p, q) => {
+      const app = a[p * 3 + p], aqq = a[q * 3 + q], apq = a[p * 3 + q];
+      if (Math.abs(apq) < 1e-15) return;
+      const tau = (aqq - app) / (2 * apq);
+      const t = Math.sign(tau) / (Math.abs(tau) + Math.sqrt(1 + tau * tau));
+      const c = 1 / Math.sqrt(1 + t * t), s = t * c;
+      // Update off-diagonal rows/columns (only r outside {p,q})
+      for (let r = 0; r < 3; r++) {
+        if (r === p || r === q) continue;
+        const arp = a[r * 3 + p], arq = a[r * 3 + q];
+        a[r * 3 + p] = c * arp - s * arq;
+        a[r * 3 + q] = s * arp + c * arq;
+        a[p * 3 + r] = a[r * 3 + p];
+        a[q * 3 + r] = a[r * 3 + q];
+      }
+      // Update diagonal and zero off-diagonal
+      a[p * 3 + p] = c * c * app - 2 * s * c * apq + s * s * aqq;
+      a[q * 3 + q] = s * s * app + 2 * s * c * apq + c * c * aqq;
+      a[p * 3 + q] = 0; a[q * 3 + p] = 0;
+      // Update eigenvector matrix
+      for (let r = 0; r < 3; r++) {
+        const vrp = v[r * 3 + p], vrq = v[r * 3 + q];
+        v[r * 3 + p] = c * vrp - s * vrq;
+        v[r * 3 + q] = s * vrp + c * vrq;
+      }
+    };
+
+    for (let iter = 0; iter < 50; iter++) {
+      rotate(A, V, 0, 1); rotate(A, V, 0, 2); rotate(A, V, 1, 2);
+    }
+
+    // Eigenvalues and eigenvectors sorted by eigenvalue descending
+    const eigs = [
+      { val: A[0], vec: new THREE.Vector3(V[0], V[3], V[6]) },
+      { val: A[4], vec: new THREE.Vector3(V[1], V[4], V[7]) },
+      { val: A[8], vec: new THREE.Vector3(V[2], V[5], V[8]) },
+    ];
+    eigs.sort((a, b) => b.val - a.val);
+
+    // Camera looks along the least-spread axis (smallest eigenvalue)
+    const viewDir = eigs[2].vec.normalize();
+    // Up vector along the second-most-spread axis
+    const upDir = eigs[1].vec.normalize();
+
+    // Ensure right-handed frame (so we don't flip)
+    const right = new THREE.Vector3().crossVectors(upDir, viewDir);
+    if (right.dot(eigs[0].vec) < 0) viewDir.negate();
+
+    // Compute bounding extent along view direction for distance
+    let maxExtent = 0;
+    for (let i = 0; i < n; i++) {
+      const dx = coords[i * 3] - cx, dy = coords[i * 3 + 1] - cy, dz = coords[i * 3 + 2] - cz;
+      const proj0 = Math.abs(dx * eigs[0].vec.x + dy * eigs[0].vec.y + dz * eigs[0].vec.z);
+      const proj1 = Math.abs(dx * eigs[1].vec.x + dy * eigs[1].vec.y + dz * eigs[1].vec.z);
+      maxExtent = Math.max(maxExtent, proj0, proj1);
+    }
+    const size = maxExtent * 2;
+
+    const fov = this.camera.fov * (Math.PI / 180);
+    const dist = (size / 2) / Math.tan(fov / 2) * 1.5;
+    const center = new THREE.Vector3(cx, cy, cz);
+    const newPos = center.clone().add(viewDir.clone().multiplyScalar(dist));
+
+    this._animateCameraTo(center, newPos, 400, upDir);
   }
 
   /**

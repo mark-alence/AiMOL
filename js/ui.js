@@ -433,7 +433,14 @@ export function ViewerApp() {
       currentRep,
       onRepChange: handleRepChange,
     }),
-    React.createElement(LoadStructureButton),
+    React.createElement('div', { className: 'viewer-bottom-left' },
+      React.createElement(LoadStructureButton),
+      React.createElement('button', {
+        className: 'orient-btn',
+        onClick: () => ViewerEvents.emit('viewerOrient'),
+        title: 'Orient view (PCA)',
+      }, 'Orient'),
+    ),
     !consoleVisible && React.createElement('button', {
       className: 'console-fab',
       onClick: toggleConsole,

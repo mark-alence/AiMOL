@@ -72,7 +72,7 @@ export class BaseRepresentation {
   dispose() {
     for (const mesh of this.meshes) {
       this.viewerGroup.remove(mesh);
-      if (mesh.geometry) mesh.geometry.dispose();
+      if (mesh.geometry && !mesh.geometry._shared) mesh.geometry.dispose();
       if (mesh.dispose) mesh.dispose();
     }
     this.meshes = [];

@@ -101,6 +101,11 @@ ViewerEvents.on('viewerRepChange', (data) => {
   }
 });
 
+// --- Orient camera ---
+ViewerEvents.on('viewerOrient', () => {
+  if (pdbViewer) pdbViewer.orient();
+});
+
 // --- Exit viewer mode ---
 ViewerEvents.on('exitViewerMode', () => {
   if (legendOverlay) {
@@ -118,6 +123,16 @@ ViewerEvents.on('exitViewerMode', () => {
     cancelAnimationFrame(animFrameId);
     animFrameId = null;
   }
+});
+
+// --- Expose command interpreter for automation (Playwright demo) ---
+ViewerEvents.on('viewerReady', (data) => {
+  window.__aimolExec = (cmd) => data.interpreter.execute(cmd);
+  window.__aimolReady = true;
+});
+ViewerEvents.on('exitViewerMode', () => {
+  window.__aimolExec = null;
+  window.__aimolReady = false;
 });
 
 // --- Resize ---
