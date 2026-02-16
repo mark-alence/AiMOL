@@ -7,38 +7,70 @@
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
+    <filter id="spark-glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <radialGradient id="ai-fill" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#c4b5fd"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </radialGradient>
+    <radialGradient id="n-fill" cx="45%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#7cc4ff"/>
+      <stop offset="100%" stop-color="#3b8eef"/>
+    </radialGradient>
+    <radialGradient id="o-fill" cx="45%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#fca5b5"/>
+      <stop offset="100%" stop-color="#ef4468"/>
+    </radialGradient>
+    <radialGradient id="c-fill" cx="45%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#5eead4"/>
+      <stop offset="100%" stop-color="#14b8a6"/>
+    </radialGradient>
   </defs>
 
   <g filter="url(#glow)">
     <!-- Bonds -->
-    <!-- N—Cα -->
-    <line x1="25" y1="60" x2="55" y2="60" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
-    <!-- Cα—C -->
-    <line x1="55" y1="60" x2="85" y2="75" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
-    <!-- C=O (double bond) -->
-    <line x1="85" y1="75" x2="105" y2="60" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
-    <line x1="87" y1="78" x2="107" y2="63" stroke="#58a6ff" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
-    <!-- C—OH -->
-    <line x1="85" y1="75" x2="100" y2="95" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
-    <!-- Cα—R (side chain going up) -->
-    <line x1="55" y1="60" x2="55" y2="30" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
-    <!-- Cα—H -->
-    <line x1="55" y1="60" x2="42" y2="78" stroke="#58a6ff" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+    <!-- N — Cα -->
+    <line x1="28" y1="58" x2="56" y2="62" stroke="#58a6ff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    <!-- Cα — C -->
+    <line x1="56" y1="62" x2="82" y2="50" stroke="#58a6ff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    <!-- C = O (double bond) -->
+    <line x1="82" y1="50" x2="100" y2="30" stroke="#58a6ff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    <line x1="85" y1="53" x2="103" y2="33" stroke="#58a6ff" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+    <!-- C — OH -->
+    <line x1="82" y1="50" x2="98" y2="74" stroke="#58a6ff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    <!-- Cα — R (side chain / AI node) -->
+    <line x1="56" y1="62" x2="46" y2="30" stroke="#a78bfa" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+    <!-- N — H -->
+    <line x1="28" y1="58" x2="16" y2="74" stroke="#58a6ff" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
 
-    <!-- Atoms -->
-    <!-- N (amino) -->
-    <circle cx="25" cy="60" r="10" fill="#58a6ff" opacity="0.85"/>
-    <!-- Cα (central) -->
-    <circle cx="55" cy="60" r="8" fill="#58a6ff" opacity="0.6"/>
-    <!-- C (carboxyl carbon) -->
-    <circle cx="85" cy="75" r="7" fill="#58a6ff" opacity="0.6"/>
-    <!-- O (carbonyl) -->
-    <circle cx="105" cy="60" r="8" fill="#58a6ff" opacity="0.85"/>
-    <!-- OH -->
-    <circle cx="100" cy="95" r="8" fill="#58a6ff" opacity="0.85"/>
-    <!-- R group -->
-    <circle cx="55" cy="30" r="10" fill="#58a6ff" opacity="0.85"/>
-    <!-- H -->
-    <circle cx="42" cy="78" r="5" fill="#58a6ff" opacity="0.3"/>
+    <!-- Atoms (back to front layering) -->
+    <!-- H (hydrogen — small, faded) -->
+    <circle cx="16" cy="74" r="4.5" fill="#58a6ff" opacity="0.25"/>
+    <!-- OH (hydroxyl oxygen) -->
+    <circle cx="98" cy="74" r="7.5" fill="url(#o-fill)" opacity="0.85"/>
+    <!-- C (carbonyl carbon) -->
+    <circle cx="82" cy="50" r="7" fill="url(#c-fill)" opacity="0.8"/>
+    <!-- O= (carbonyl oxygen) -->
+    <circle cx="100" cy="30" r="8.5" fill="url(#o-fill)" opacity="0.9"/>
+    <!-- Cα (alpha carbon) -->
+    <circle cx="56" cy="62" r="7.5" fill="url(#c-fill)" opacity="0.8"/>
+    <!-- N (nitrogen) -->
+    <circle cx="28" cy="58" r="10" fill="url(#n-fill)" opacity="0.9"/>
+    <!-- R group / AI node -->
+    <circle cx="46" cy="30" r="10" fill="url(#ai-fill)" opacity="0.92"/>
   </g>
+
+  <!-- AI sparkle on R-group node -->
+  <g filter="url(#spark-glow)">
+    <path d="M46,21 L47.5,27 L53,30 L47.5,33 L46,39 L44.5,33 L39,30 L44.5,27 Z"
+          fill="#e0d4ff" opacity="0.7"/>
+  </g>
+
+  <!-- Small inner sparkle highlight -->
+  <circle cx="44" cy="27" r="1.5" fill="white" opacity="0.6"/>
 </svg>
