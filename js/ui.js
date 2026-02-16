@@ -191,10 +191,10 @@ function ViewerError({ message }) {
 
 // --- Representation Toolbar ---
 const REP_BUTTONS = [
+  { key: 'cartoon',        label: 'Cartoon' },
   { key: 'ball_and_stick', label: 'Ball&Stick' },
   { key: 'spacefill',      label: 'Spacefill' },
   { key: 'sticks',         label: 'Sticks' },
-  { key: 'cartoon',        label: 'Cartoon' },
   { key: 'lines',          label: 'Lines' },
 ];
 
@@ -323,7 +323,7 @@ export function ViewerApp() {
   const [viewerError, setViewerError] = useState('');
   const [viewerQuality, setViewerQuality] = useState(isMobile ? 'off' : 'low');
   const [consoleVisible, setConsoleVisible] = useState(false);
-  const [currentRep, setCurrentRep] = useState('ball_and_stick');
+  const [currentRep, setCurrentRep] = useState('cartoon');
   const [interpreter, setInterpreter] = useState(null);
   const legendUpdateRef = React.useRef(null);
 
@@ -343,7 +343,7 @@ export function ViewerApp() {
     setViewerError('');
     setViewerQuality(isMobile ? 'off' : 'low');
     setConsoleVisible(false);
-    setCurrentRep('ball_and_stick');
+    setCurrentRep('cartoon');
     setInterpreter(null);
     legendUpdateRef.current = null;
   }, []);

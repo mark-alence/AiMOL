@@ -214,7 +214,7 @@ export class PDBViewer {
     this.model = null;
     this.bonds = null;
     this.activeReps = new Map();
-    this.currentRepType = REP_TYPES.BALL_AND_STICK;
+    this.currentRepType = REP_TYPES.CARTOON;
     this.atomRepType = null;
 
     // Multi-structure support
@@ -1264,7 +1264,7 @@ export class PDBViewer {
     this.resetVisibility();
     this.resetScale();
     this.clearAllInteractions();
-    this.setRepresentation(REP_TYPES.BALL_AND_STICK);
+    this.setRepresentation(REP_TYPES.CARTOON);
     if (this._initialCameraPos) {
       this._animateCameraTo(this._initialTarget, this._initialCameraPos, 400);
     }
